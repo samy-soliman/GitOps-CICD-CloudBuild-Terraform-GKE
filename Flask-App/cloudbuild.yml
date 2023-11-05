@@ -1,0 +1,106 @@
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# [START cloudbuild]
+steps:
+# This step runs the unit tests on the app
+- name: 'python:3.7-slim'
+  id: Test
+  entrypoint: /bin/sh
+  args:
+  - -c
+  - 'pip install flask && python test_app.py -v'
+
+# This step builds the container image.
+- name: 'gcr.io/cloud-builders/docker'
+  id: Build
+  args:
+  - 'build'
+  - '-t'
+  - 'us-east1-docker.pkg.dev/$PROJECT_ID/mongo-registry/flask:$SHORT_SHA'
+  - '.'
+
+# This step pushes the image to Artifact Registry
+# The PROJECT_ID and SHORT_SHA variables are automatically
+# replaced by Cloud Build.
+- name: 'gcr.io/cloud-builders/docker'
+  id: Push
+  args:
+  - 'push'
+  - 'us-east1-docker.pkg.dev/$PROJECT_ID/mongo-registry/flask:$SHORT_SHA'
+# [END cloudbuild]
+
+# [START cloudbuild-trigger-cd]
+# This step clones the Flask-Kube repository
+- name: 'gcr.io/cloud-builders/git'
+  secretEnv: ['SSH_KEY']
+  entrypoint: 'bash'
+  args:
+  - -c
+  - |
+    echo "$$SSH_KEY" >> /root/.ssh/id_rsa
+    chmod 400 /root/.ssh/id_rsa
+    cp known_hosts.github /root/.ssh/known_hosts
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Clone Flask-kube repo
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    git clone --recurse-submodules -b candidate git@github.com:samy-soliman/Flask-kube.git
+ 
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+  # This step generates the new manifest
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Generate manifest
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+      cd Flask-kube
+      sed -i "s#us-east1-docker.pkg.*#us-east1-docker.pkg.dev/$PROJECT_ID/mongo-registry/flask:$SHORT_SHA#g" deployment.yml
+
+# This step pushes the manifest back to hello-cloudbuild-env
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Push manifest
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    set -x && \
+    cd Flask-kube && \
+    git config --global user.email $(git log --format='%an <%ae>' -n 1 HEAD)
+    git config --global user.name $(git log --format='%an <%ae>' -n 1 HEAD)
+    git add deployment.yml && \    
+    git commit -m "Deploying image us-east1-docker.pkg.dev/$PROJECT_ID/mongo-registry/flask:${SHORT_SHA}
+    Built from commit ${COMMIT_SHA} of repository Flask-App
+    Author: $(git log --format='%an <%ae>' -n 1 HEAD)" && \
+    git push origin candidate
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/313782820756/secrets/github/versions/2
+    env: 'SSH_KEY'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+# [END cloudbuild-trigger-cd]
