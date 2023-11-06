@@ -6,7 +6,7 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 ![CArchitecture](/Images/gitflow.PNG)
 
 
-Explaining the Project Architecture:
+## Explaining the Project Architecture:
 1. the main of the project is to get our flask app to production.
 2. we have 3 Folders(App,IAC,Kube), each of which has its own repo (you can find then in my account but i merged the three here for documenting).
 3. each repo acts like source of truth, each has its own pipeline in cloudBuild.
@@ -17,7 +17,7 @@ Explaining the Project Architecture:
 8. the Kube pipeline deploys the new Kubernetes files on candidate branch to GKE cluster, then copies the files from candidate branch to production branch to save the state of successful deployments in this branch to at as the source of truth and makes it easy to revert to previous deployments.
 
 
-How to get it working:
+## How to get it working:
 1. Sign in to your Google Cloud account
 2. select or create a Google Cloud project
 3. Make sure that billing is enabled for your Google Cloud project.
