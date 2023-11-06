@@ -6,7 +6,7 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 ![CArchitecture](/Images/gitflow.PNG)
 
 
-## Explaining the Project Architecture:
+## Explaining The Project Architecture:
 1. The main of the project is to get our flask app to production.
 2. We have 3 Folders **(App,IAC,Kube)**, each of which has its own repo.
    > you can find them in my account but i merged the three here for documenting.
@@ -18,14 +18,21 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 8. The **Kube pipeline** deploys the new Kubernetes files on candidate branch to GKE cluster, then copies the files from candidate branch to production branch to save the state of successful deployments in this branch to at as the source of truth and makes it easy to revert to previous deployments.
 
 
-## How to get it working:
+## How To Get It Working:
 1. Sign in to your Google Cloud account
 2. select or create a Google Cloud project
 3. Make sure that billing is enabled for your Google Cloud project.
 4. Enable the Cloud Build , kubernetes, artifactregistry and Secret Manager APIs.
-5. Create a SA to run your cloudbuild pipelines with limited permisstions.
+5. Create a service account to run your cloudbuild pipelines with limited permisstions for security.
 6. Create 3 repos one for the App another one for the IAC files and the last is for Kubernetes manifest
 7. Add a your Github as a connection in cloudBuild and import the three repos.
 8. create a trigger for each repo, specify the name of the script as **cloudbuild.yml** and the branch as your case.
 
-<b>This is enought to get the project up, but you need to takecare of few things let me list them for You</b>
+<b>This is enough to get the project up, but you need to takecare of few things let me list them for You</b>
+
+## Implementation Details:
+1. Select or create a Google Cloud project.
+2. Enable billing for your project.
+3. Enable the required APIs (cloudbuild,artifactregistry,container,secretsmanager,..)
+4. To allow the CI/CD pipeline to push changes to the env repository, we first need to authenticate using our GitHub     account. This can be achieved by creating an SSH key and storing it securely in Google Secrets Manager. This key will allow Cloud Build permission to push commits to the repository.
+5. Add the public SSH key to your private repository's deploy keys.
