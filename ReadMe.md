@@ -7,14 +7,14 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 
 
 ## Explaining the Project Architecture:
-1. the main of the project is to get our flask app to production.
-2. we have 3 Folders(App,IAC,Kube), each of which has its own repo (you can find then in my account but i merged the three here for documenting).
-3. each repo acts like source of truth, each has its own pipeline in cloudBuild.
-4. any change in IAC repo is resposible for triggering our pipeline to create our infrastructure.
-5. our infrastructure is a simble gke cluster to deploy our app on.
-6. the app repo contains the app files and dockerfile for the app, by commiting code to the app the trigger of the pipeline is fired.
-7. the App pipeline test the application, build a docker image for the app, bushes the image to **artifact registry** on gcp, clones the Kube repo to get the kubernetes deployment files, editting the Kubernetes files to point to the new docker image, push the new kubenetes files to the Kube repo on **branch candidate**, this push to the Kube repo fires the Third pipeline, The Kube Pipeline.
-8. the Kube pipeline deploys the new Kubernetes files on candidate branch to GKE cluster, then copies the files from candidate branch to production branch to save the state of successful deployments in this branch to at as the source of truth and makes it easy to revert to previous deployments.
+1. The main of the project is to get our flask app to production.
+2. We have 3 Folders **(App,IAC,Kube)**, each of which has its own repo (you can find them in my account but i merged the three here for documenting).
+3. Each repo acts like **source of truth**, each has its own pipeline in cloudBuild.
+4. Any change in IAC repo is resposible for triggering our **IAC pipeline** to create our infrastructure.
+5. Our infrastructure is a simble **gke cluster** to deploy our app on.
+6. The app repo contains the **app files and dockerfile** for the app, by commiting code to the app the trigger of the pipeline is fired.
+7. The **App pipeline** steps: **test** the application, **build** a docker image for the app, **bushes** the image to **artifact registry** on gcp, **clones** the Kube repo to get the kubernetes deployment files, **editting** the Kubernetes files to point to the new docker image, **push** the new kubenetes files to the Kube repo on **branch candidate**, this push to the Kube repo **fires** the Third pipeline, The Kube Pipeline.
+8. The **Kube pipeline** deploys the new Kubernetes files on candidate branch to GKE cluster, then copies the files from candidate branch to production branch to save the state of successful deployments in this branch to at as the source of truth and makes it easy to revert to previous deployments.
 
 
 ## How to get it working:
