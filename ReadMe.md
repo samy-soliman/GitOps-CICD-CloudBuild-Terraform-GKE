@@ -43,8 +43,8 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 1. We start by creating our infrastructure, we can do this by making a commit to the IAC repo.
 ![CArchitecture](/Images/14.PNG)
 
-2. inspect pipeline steps in cloudbuild
+2. inspect pipeline steps in cloudbuild.
 ![CArchitecture](/Images/7.PNG)
 
-3. makking sure the cluster is created
+3. makking sure the cluster is created.
 ![CArchitecture](/Images/10.PNG)
