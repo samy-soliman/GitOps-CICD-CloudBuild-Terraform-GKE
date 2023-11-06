@@ -44,7 +44,9 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 ![CArchitecture](/Images/14.PNG)
 
 2. inspect pipeline steps in cloudbuild.
+
 ![CArchitecture](/Images/7.PNG)
 
 3. makking sure the cluster is created.
+
 ![CArchitecture](/Images/10.PNG)
