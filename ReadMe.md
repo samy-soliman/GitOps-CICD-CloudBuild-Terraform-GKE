@@ -13,7 +13,7 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
    ![CArchitecture](/Images/4.PNG)
 3. Each repo acts like **source of truth**, each has its own pipeline in cloudBuild.
 4. Any change in IAC repo is resposible for triggering our **IAC pipeline** to create our infrastructure.
-5. Our infrastructure is a simble **gke cluster** to deploy our app on.
+5. Our infrastructure is **(gke cluster, artifact registry, VPC, Subnet)** to deploy our app on.
 6. The app repo contains the **app files and dockerfile** for the app, by commiting code to the app the trigger of the pipeline is fired.
 7. The **App pipeline** steps: **test** the application, **build** a docker image for the app, **bushes** the image to **artifact registry** on gcp, **clones** the Kube repo to get the kubernetes deployment files, **editting** the Kubernetes files to point to the new docker image, **push** the new kubenetes files to the Kube repo on **branch candidate**, this push to the Kube repo **fires** the Third pipeline, The Kube Pipeline.
 8. The **Kube pipeline** deploys the new Kubernetes files on candidate branch to GKE cluster, then copies the files from candidate branch to production branch to save the state of successful deployments in this branch to at as the source of truth and makes it easy to revert to previous deployments.
@@ -41,32 +41,59 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 <b>lets see a simple run of the project exploring it ;D</b>
 
 1. make sure your cloudBuild triggers is ready
+
 ![CArchitecture](/Images/16.PNG)
+
 2. We start by creating our infrastructure, to do this make a commit to the IAC repo this will trigger **IAC pipeline**.
+
 ![CArchitecture](/Images/14.PNG)
+
 3. inspect pipeline steps in cloudbuild.
+
 ![CArchitecture](/Images/7.PNG)
+
 4. makking sure the cluster is created.
+
 ![CArchitecture](/Images/10.PNG)
+
 5. after making sure the cluster is created we commit a chnage to app repo triggering the **App pipeline**
+
 ![CArchitecture](/Images/2.PNG)
+
 6. OOps we get an error, we did not pass the test lets fix it and push again
+
 ![CArchitecture](/Images/15.PNG)
+
 7. now lets see our pipline steps, it looks great
+
 ![CArchitecture](/Images/8.PNG)
+
 8. the success of our **App pipeline** triggers a push to Kube repo Triggering the **Kube Pipeline**
+
 ![CArchitecture](/Images/5.PNG)
+
 9. inspecting **Kube pipeline** steps
+
 ![CArchitecture](/Images/9.PNG)
+
 10. inspect the result of kube pipeline, our kubernetes manifest is applied and the **LoadBalancer** service is created
+
 ![CArchitecture](/Images/11.PNG)
+
 11. test the app
+
 ![CArchitecture](/Images/12.PNG)
+
 12. now to clean the things up simply destroy the infrastructure, we can do ths by renaming the cloudBuild file in the IAC repo to point to the delete script, i made two one for the creating and another for destroying, now lets do it.
+
 ![CArchitecture](/Images/17.PNG)
+
 13. making sure infrastructure is deleted from gCloud console, here is oure destroy steps
+
 ![CArchitecture](/Images/19.PNG)
+
 14. our cloudbuild run history for our steps
+
 ![CArchitecture](/Images/18.PNG)
 
 <b>now this was quite a ride, contact me if you need any help !</b>
