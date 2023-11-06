@@ -32,7 +32,7 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 <b>This is enough to get the project up, but you need to takecare of few things let me list them for You</b>
 
 ## Implementation Details:
-1. To allow the CI/CD pipeline to push changes to the env repository, we first need to authenticate using our GitHub     account. This can be achieved by creating an SSH key and storing it securely in Google Secrets Manager. This key will allow Cloud Build permission to push commits to the repository.
+1. To allow the App pipeline to push changes to the Kube repository, we first need to authenticate using our GitHub     account. This can be achieved by creating an SSH key and storing it securely in Google Secrets Manager. This key will allow Cloud Build permission to push commits to the repository.
 ![CArchitecture](/Images/3.PNG)
 2. Add the public SSH key to your private repository's deploy keys.
 ![CArchitecture](/Images/6.PNG)
@@ -42,7 +42,9 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 
 1. We start by creating our infrastructure, we can do this by making a commit to the IAC repo.
 ![CArchitecture](/Images/14.PNG)
+
 2. inspect pipeline steps in cloudbuild
 ![CArchitecture](/Images/7.PNG)
+
 3. makking sure the cluster is created
 ![CArchitecture](/Images/10.PNG)
