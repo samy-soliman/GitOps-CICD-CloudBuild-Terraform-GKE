@@ -1,14 +1,23 @@
-When you push a change to the app repository, the Cloud Build pipeline runs tests, builds a container image, and pushes it to Artifact Registry. After pushing the image, Cloud Build updates the Deployment manifest and pushes it to the env repository. This triggers another Cloud Build pipeline that applies the manifest to the GKE cluster and, if successful, stores the manifest in another branch of the env repository.
+# GitOps-style CI/CD pipeline on Google Cloud using CloudBuild
 
-We keep the app and env repositories separate because they have different lifecycles and uses. The main users of the app repository are actual humans and this repository is dedicated to a specific application. The main users of the env repository are automated systems (such as Cloud Build), and this repository might be shared by several applications. The env repository can have several branches that each map to a specific environment (you only use production in this tutorial) and reference a specific container image, whereas the app repository does not.
+![SArchitecture](/Images/git-flow.PNG)
+When you push a change to the app repository, the **Cloud Build** pipeline runs tests, builds a container image, and pushes it to **Artifact Registry**. After pushing the image, Cloud Build updates the Deployment manifest and pushes it to the env repository. This triggers another Cloud Build pipeline that applies the manifest to the **GKE** cluster and, if successful, stores the manifest in another branch of the env repository.
 
-When you finish this tutorial, you have a system where you can easily:
-1-Distinguish between failed and successful deployments by looking at the Cloud Build history,
-2-Access the manifest currently used by looking at the production branch of the env repository,
-3-Rollback to any previous version by re-executing the corresponding Cloud Build build.
+![CArchitecture](/Images/gitflow.PNG)
 
 
-Before you begin:
+Explaining the Project Architecture:
+1- the main of the project is to get our flask app to production.
+2- we have 3 Folders(App,IAC,Kube), each of which has its own repo (you can find then in my account but i merged the three here for documenting).
+3- each repo acts like source of truth, each has its own pipeline in cloudBuild.
+4- any change in IAC repo is resposible for triggering our pipeline to create our infrastructure.
+5- our infrastructure is a simble gke cluster to deploy our app on.
+6- the app repo contains the app files and dockerfile for the app, by commiting code to the app the trigger of the pipeline is fired.
+7- the App pipeline test the application, build a docker image for the app, bushes the image to **artifact registry** on gcp, clones the Kube repo to get the kubernetes deployment files, editting the Kubernetes files to point to the new docker image, push the new kubenetes files to the Kube repo on **branch candidate**, this push to the Kube repo fires the Third pipeline, The Kube Pipeline.
+8- the Kube pipeline deploys the new Kubernetes files on candidate branch to GKE cluster, then copies the files from candidate branch to production branch to save the state of successful deployments in this branch to at as the source of truth and makes it easy to revert to previous deployments.
+
+
+How to get it working:
 1- Sign in to your Google Cloud account
 2- select or create a Google Cloud project
 3- Make sure that billing is enabled for your Google Cloud project.
