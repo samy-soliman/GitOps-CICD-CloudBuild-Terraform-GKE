@@ -8,7 +8,8 @@ When you push a change to the app repository, the **Cloud Build** pipeline runs 
 
 ## Explaining the Project Architecture:
 1. The main of the project is to get our flask app to production.
-2. We have 3 Folders **(App,IAC,Kube)**, each of which has its own repo (you can find them in my account but i merged the three here for documenting).
+2. We have 3 Folders **(App,IAC,Kube)**, each of which has its own repo.
+   > you can find them in my account but i merged the three here for documenting.
 3. Each repo acts like **source of truth**, each has its own pipeline in cloudBuild.
 4. Any change in IAC repo is resposible for triggering our **IAC pipeline** to create our infrastructure.
 5. Our infrastructure is a simble **gke cluster** to deploy our app on.
