@@ -1,11 +1,3 @@
-resource "google_compute_subnetwork" "management_subnet" {
-  name          = "management-subnetwork"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = "us-east1"
-  network       = google_compute_network.mongo_vpc.id
-  depends_on = [google_compute_network.mongo_vpc]
-}
-
 resource "google_compute_subnetwork" "workload_subnet" {
   name          = "workload-subnetwork"
   ip_cidr_range = "10.1.0.0/24"
